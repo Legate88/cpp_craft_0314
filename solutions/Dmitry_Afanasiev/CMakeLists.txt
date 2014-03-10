@@ -9,7 +9,7 @@ project( ${SOLUTION_NAME} )
 include( environment.cmake required )
 
 
-binaries( )
+binaries(lab1_1 lab1_2 lab1_3)
 
 
 compile()
