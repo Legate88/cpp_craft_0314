@@ -1,8 +1,6 @@
 // lab1_2.cpp: определяет точку входа для консольного приложения.
 //
 
-#include "stdafx.h"
-#include <stdio.h>
 #include <iostream>
 #include <fstream>
 #include <conio.h>
@@ -10,14 +8,14 @@
 
 using namespace std;
 
-static const long codesArrayMaxSize = 1000000;
+static const size_t codesArrayMaxSize = 1000000;
 
-int _tmain(int argc, _TCHAR* argv[])
+int main(int argc, char* argv[])
 {
 	ifstream inputFile (BINARY_DIR "/input.txt");
 
-	long numberOfValues = 0;
-	float bufferValue = 0.f;
+	size_t numberOfValues = 0;
+	double bufferValue = 0.0;
 			
 	while (!inputFile.eof())
 	{
@@ -32,7 +30,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		ifstream inputFile (BINARY_DIR "/input.txt");
 		ofstream outputFile (BINARY_DIR "/output.txt");
 
-		long codesArrayCount = 0;
+		size_t codesArrayCount = 0;
 		inputFile >> codesArrayCount;
 		numberOfValues -= 1;
 
@@ -40,14 +38,13 @@ int _tmain(int argc, _TCHAR* argv[])
 
 		if (codesArrayCount < numberOfValues)
 		{
-			vector <float> codesArray;
+			vector <double> codesArray;
 			
 			while (!inputFile.eof() && codesArrayCount > 0)
 			{
 				inputFile >> bufferValue;
 				codesArray.push_back(bufferValue);
 				codesArrayCount -= 1;
-				cout << bufferValue << endl;
 			}
 
 			bool equalsFound = false;
@@ -56,9 +53,9 @@ int _tmain(int argc, _TCHAR* argv[])
 			{
 				inputFile >> bufferValue;
 				
-				for (long i = 0; i < codesArray.size(); i++)
+				for (size_t i = 0; i < codesArray.size(); i++)
 				{
-					if (fabsf(codesArray[i] - bufferValue) <= 1e-4)
+					if (fabs(codesArray[i] * 1e4 - bufferValue * 1e4) <= 1)
 					{
 						outputFile << "YES \n";
 						equalsFound = true;
@@ -70,6 +67,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				{
 					outputFile << "NO \n";
 				}
+
 				equalsFound = false;
 			}
 		}

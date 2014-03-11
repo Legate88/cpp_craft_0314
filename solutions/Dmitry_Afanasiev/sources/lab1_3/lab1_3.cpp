@@ -1,8 +1,6 @@
 // lab1_3.cpp: определяет точку входа для консольного приложения.
 //
 
-#include "stdafx.h"
-#include <stdio.h>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -14,7 +12,7 @@ using namespace std;
 static const char isle = 'o';
 static const char water = '~';
 
-inline void searchForIsle(vector<string> &map_, long line, long row)
+inline void searchForIsle(vector<string> &map_, size_t line, size_t row)
 {
 	if (map_[line][row] == isle)
 	{
@@ -42,13 +40,10 @@ inline void searchForIsle(vector<string> &map_, long line, long row)
 	}
 }
 
-int _tmain(int argc, _TCHAR* argv[])
+int main(int argc, char* argv[])
 {
 	ifstream inputFile (BINARY_DIR "/input.txt");
-	ofstream outputFile (BINARY_DIR "/output.txt");
-
-	long numberOfIsles = 0;
-	
+	size_t numberOfIsles = 0;
 	vector <string> map;
 
 	while (!inputFile.eof())
@@ -58,9 +53,11 @@ int _tmain(int argc, _TCHAR* argv[])
 		map.push_back(currentMapString);
 	}
 
-	for (long line = 0; line < map.size(); line++)
+	inputFile.close();
+
+	for (size_t line = 0; line < map.size(); line++)
 	{
-		for (long row = 0; row < map[line].size(); row++)
+		for (size_t row = 0; row < map[line].size(); row++)
 		{
 			if (map[line][row] == isle)
 			{
@@ -70,11 +67,10 @@ int _tmain(int argc, _TCHAR* argv[])
 		}
 	}
 
+	ofstream outputFile (BINARY_DIR "/output.txt");
 	outputFile << numberOfIsles;
-
 	outputFile.close();
-	inputFile.close();
-
+	
 	return EXIT_SUCCESS;
 }
 

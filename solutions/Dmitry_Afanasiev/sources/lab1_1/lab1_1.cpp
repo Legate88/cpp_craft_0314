@@ -1,8 +1,6 @@
 // lab1_1.cpp: определяет точку входа для консольного приложения.
 //
 
-#include "stdafx.h"
-#include <stdio.h>
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -11,7 +9,22 @@
 
 using namespace std;
 
-static const long stringMaxSize = 100000;
+static const size_t stringMaxSize = 100000;
+
+inline bool avaliableSymbol(const char symbol)
+{
+	string notSupportedSymbols = " -\/*:.,!&?;%^";
+
+	for (size_t i = 0; i < notSupportedSymbols.size(); i++)
+	{
+		if (symbol == notSupportedSymbols[i])
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
 
 inline void transformString(string &str)
 {
@@ -25,14 +38,21 @@ inline void transformString(string &str)
 			  str.begin(),
 			  ::toupper);	
 
-	long i;
-	while ((i = str.find(" ")) < str.length())
+	size_t i = 0;
+	while (i < str.length())
 	{
-		str.erase(i, 1);
+		if (!avaliableSymbol(str[i]))
+		{
+			str.erase(i, 1);
+		}
+		else
+		{
+			i += 1;
+		}
 	}
 }
 
-int _tmain(int argc, _TCHAR* argv[])
+int main(int argc, char* argv[])
 {
 	setlocale (LC_ALL, "RUSSIAN");
 
@@ -41,36 +61,27 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	if (inputFile.is_open())
 	{
-		long iterationsCount = 0;
 		string stringToFoundMatches = "";
 
+		getline(inputFile, stringToFoundMatches);
+		transformString(stringToFoundMatches);
+
 		while (!inputFile.eof()) 
-		 {
-			 if (iterationsCount == 0)
-			 {
-				getline(inputFile, stringToFoundMatches);
-    
-				transformString(stringToFoundMatches);
-			 }
-			 else
-			 {
-				string stringToResolveMatching = "";
+		{
+			string stringToResolveMatching = "";
 
-				getline(inputFile, stringToResolveMatching);
+			getline(inputFile, stringToResolveMatching);
 
-				transformString(stringToResolveMatching);
+			transformString(stringToResolveMatching);
 
-				if (stringToFoundMatches.find(stringToResolveMatching) != string :: npos)
-				{
-					outputFile << "YES \n";
-				}
-				else
-				{
-					outputFile << "NO \n";
-				}
-			 }
-
-			 iterationsCount += 1;
+			if (stringToFoundMatches.find(stringToResolveMatching) != string :: npos)
+			{
+				outputFile << "YES \n";
+			}
+			else
+			{
+				outputFile << "NO \n";
+			} 
 		}
 
        inputFile.close();
