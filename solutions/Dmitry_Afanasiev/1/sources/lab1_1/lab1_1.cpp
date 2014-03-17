@@ -11,21 +11,6 @@ using namespace std;
 
 static const size_t stringMaxSize = 100000;
 
-inline bool avaliableSymbol(const char symbol)
-{
-	string notSupportedSymbols = " -\/*:.,!&?;%^";
-
-	for (size_t i = 0; i < notSupportedSymbols.size(); i++)
-	{
-		if (symbol == notSupportedSymbols[i])
-		{
-			return false;
-		}
-	}
-
-	return true;
-}
-
 inline void transformString(string &str)
 {
 	if (str.size() > stringMaxSize)
@@ -38,24 +23,14 @@ inline void transformString(string &str)
 			  str.begin(),
 			  ::toupper);	
 
-	size_t i = 0;
-	while (i < str.length())
-	{
-		if (!avaliableSymbol(str[i]))
-		{
-			str.erase(i, 1);
-		}
-		else
-		{
-			i += 1;
-		}
-	}
+	str.erase(remove_if(str.begin(), str.end(), [](char ch)
+	 {
+		return isspace(ch) || ispunct(ch);
+	 }), str.end());
 }
 
 int main(int argc, char* argv[])
 {
-	setlocale (LC_ALL, "RUSSIAN");
-
 	ifstream inputFile (BINARY_DIR "/input.txt");
 	ofstream outputFile (BINARY_DIR "/output.txt");
 

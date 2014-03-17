@@ -12,7 +12,7 @@ using namespace std;
 static const char isle = 'o';
 static const char water = '~';
 
-inline void searchForIsle(vector<string> &map_, size_t line, size_t row)
+inline void searchForIsle(vector<string> &map_, const size_t line, const size_t row)
 {
 	if (map_[line][row] == isle)
 	{
