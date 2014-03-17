@@ -1,1 +1,8 @@
-compile_project( ${module_name} "*.cpp" "*.h" BINARY binaries binary_reader Boost )
+find_package( Boost 1.55 ${SEARCH_PARAMETERS} COMPONENTS
+
+	system
+
+)
+
+
+compile_project( ${module_name} "*.cpp" "*.h" BINARY binaries Boost )

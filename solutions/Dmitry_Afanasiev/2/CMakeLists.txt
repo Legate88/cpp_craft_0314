@@ -9,9 +9,9 @@ project( ${SOLUTION_NAME} )
 include( environment.cmake required )
 
 
-modules( binary_reader )
+modules( )
 
-binaries( 2_1 2_2 2_3)
+binaries( 2_2 )
 
 
 compile()

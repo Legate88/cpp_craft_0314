@@ -1,10 +1,9 @@
 @echo off
 
 
-set SOLUTION_NAME=2nd_lecture_example
-
+set SOLUTION_NAME=puzzle_2_solution
 set
-set BOOST_ROOT=C:\Program Files\boost_1_55_0\boost\
+set BOOST_ROOT=C:\Program Files\boost_1_55_0\
  BUILD_TYPE=Debug
 if [%1]==[Release]
  (
