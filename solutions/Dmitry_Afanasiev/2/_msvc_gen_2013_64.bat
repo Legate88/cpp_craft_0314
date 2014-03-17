@@ -3,7 +3,7 @@
 
 set SOLUTION_NAME=puzzle_2_solution
 set
-set BOOST_ROOT=C:\Program Files\boost_1_55_0\
+set BOOST_ROOT=C:/Program Files/boost_1_55_0
  BUILD_TYPE=Debug
 if [%1]==[Release]
  (
