@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
 				
 				for (size_t i = 0; i < codesArray.size(); i++)
 				{
-					if (fabs(codesArray[i] * 1e4 - bufferValue * 1e4) <= 1)
+					if (fabs(codesArray[i] * 1e4 - bufferValue * 1e4) < 1)
 					{
 						outputFile << "YES \n";
 						equalsFound = true;

@@ -23,7 +23,7 @@ inline void transformString(string &str)
 			  str.begin(),
 			  ::toupper);	
 
-	str.erase(remove_if(str.begin(), str.end(), [](char ch)
+	str.erase(remove_if(str.begin(), str.end(), [](const char ch)
 	 {
 		return isspace(ch) || ispunct(ch);
 	 }), str.end());
@@ -55,8 +55,16 @@ int main(int argc, char* argv[])
 			}
 			else
 			{
-				outputFile << "NO \n";
-			} 
+				reverse(stringToResolveMatching.begin(), stringToResolveMatching.end());
+				if (stringToFoundMatches.find(stringToResolveMatching) != string :: npos)
+				{
+					outputFile << "YES \n";
+				}
+				else
+				{
+					outputFile << "NO \n";
+				}
+			}
 		}
 
        inputFile.close();
