@@ -81,7 +81,7 @@ void readInputFileError()
 {
 	ofstream outputFile (BINARY_DIR "/output.txt");
 
-	outputFile << "unknown error while reading input.txt";
+	outputFile << "unknown error while reading input.רעו";
 
 	outputFile.close();
 }

@@ -62,9 +62,9 @@ bool compareFunction (const messageData *a, const messageData *b)
 
 void readInputFileError()
 {
-	ofstream outputFile (BINARY_DIR "/output.txt", ios::binary);
+	ofstream outputFile (BINARY_DIR "/output.txt");
 
-	outputFile << "unknown error while reading input.txt";
+	outputFile << "unknown error while reading input.in";
 
 	outputFile.close();
 }

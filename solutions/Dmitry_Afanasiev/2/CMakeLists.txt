@@ -11,7 +11,7 @@ include( environment.cmake required )
 
 modules( )
 
-binaries( 2_1 2_2 )
+binaries( 2_1 2_2 2_3 )
 
 
 compile()
