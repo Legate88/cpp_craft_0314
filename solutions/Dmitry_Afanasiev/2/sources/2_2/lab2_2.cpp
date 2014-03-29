@@ -10,13 +10,13 @@ using namespace std;
 static const size_t max_TYPE_Value = 100001;
 static const size_t capacityFilter = 2048;
 
-typedef struct messageData
+struct messageData
 {
 	size_t		messagesCount;
 	size_t		messagesCapacity;
 };
 
-typedef struct staticticData
+struct staticticData
 {
 	size_t		messageCount;
 	size_t		secondsCount;
@@ -63,14 +63,16 @@ void saveStatistic(staticticData *statistic, messageData *buffer, const size_t s
 
 void saveStatisticToFile(staticticData *statistic, const size_t size)
 {
-	ofstream outputFile (BINARY_DIR "/output.txt");
+	ofstream outputFile (BINARY_DIR "/output.txt", ios::binary);
 
 	for (size_t i = 0; i < size; i++)
 	{
 		if (statistic[i].messageCount > 0)
 		{
-			double averageValue = (double)statistic[i].messageCount / (double)statistic[i].secondsCount;
-			outputFile << i << " " << averageValue << "\n";
+			const double averageValue = static_cast<double>(statistic[i].messageCount) / static_cast<double>(statistic[i].secondsCount);
+
+			outputFile.write((char *)i, sizeof(size_t));
+			outputFile.write((char *)&averageValue, sizeof(double));
 		}
 	}
 
@@ -81,7 +83,7 @@ void readInputFileError()
 {
 	ofstream outputFile (BINARY_DIR "/output.txt");
 
-	outputFile << "unknown error while reading input.רעו";
+	outputFile << "unknown error while reading input.txt";
 
 	outputFile.close();
 }
@@ -89,7 +91,12 @@ void readInputFileError()
 
 int main(int argc, char* argv[])
 {
-	ifstream inputFile (BINARY_DIR "/input.in", ios::binary);
+	ifstream inputFile (BINARY_DIR "/input.txt", ios::binary);
+
+	inputFile.seekg(0, ios::end);
+	size_t const fileSize = inputFile.tellg();
+	inputFile.seekg(0);
+	size_t curPos = inputFile.tellg();
 
 	if (inputFile)
 	{
@@ -101,23 +108,23 @@ int main(int argc, char* argv[])
 		staticticData *messagesStatistic = new staticticData[max_TYPE_Value];
 		cleanStatistic(messagesStatistic, max_TYPE_Value);
 
-		while (!inputFile.eof())
+		while (curPos < fileSize)
 		{
 			uint32_t message_type = 0;
 			uint32_t message_time = 0;
 			uint32_t message_length = 0;
 
-			inputFile.read((char *)&message_type, sizeof(uint32_t));
-			inputFile.read((char *)&message_time, sizeof(uint32_t));
-			inputFile.read((char *)&message_length, sizeof(uint32_t));
+			inputFile.read(reinterpret_cast<char*>(&message_type), sizeof(uint32_t));
+			inputFile.read(reinterpret_cast<char*>(&message_time), sizeof(uint32_t));
+			inputFile.read(reinterpret_cast<char*>(&message_length), sizeof(uint32_t));
 
-			char message_content = ' ';
-			for (uint32_t i = 0; i < message_length; i++)
-			{
-				inputFile.read((char *)&message_content, sizeof(char));
-			}
+			char * message_content = new char[message_length + 1];
+			message_content[message_length] = '\0';
+			inputFile.read(static_cast<char*>(message_content), message_length);
+			delete [] message_content;
 
 			const uint32_t messageCapacity = 3 * sizeof(uint32_t) + message_length * sizeof(char);
+			curPos = inputFile.tellg();
 
 			if (message_time >= prevSecondValue)
 			{
@@ -148,4 +155,3 @@ int main(int argc, char* argv[])
 
 	return EXIT_SUCCESS;
 }
-

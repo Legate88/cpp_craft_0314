@@ -52,7 +52,7 @@ struct messageData
 		
 	}
 
-	void printInfo()
+	void printInfo() const
 	{
 		cout << message << " ";
 		cout << year << month << day << " ";
@@ -65,9 +65,9 @@ struct messageData
 		if (!endOfFileDetected)
 		{
 			message.push_back(' ');
-			uint32_t date = (year - 1) * 372 + (month - 1) * 31 + day;
-			double writePrice = vwap;
-			uint32_t writeVolume = volume;
+			const uint32_t date = (year - 1) * 372 + (month - 1) * 31 + day;
+			const double writePrice = vwap;
+			const uint32_t writeVolume = volume;
 
 			file.write((char *)message.c_str(), message.length() * sizeof(char));
 			file.write((char *)&date, sizeof(uint32_t));
@@ -144,9 +144,9 @@ struct messageData
 
 void readInputFileError()
 {
-	ofstream outputFile (BINARY_DIR "/output.txt");
+	ofstream outputFile (BINARY_DIR "/output.txt", ios::binary);
 
-	outputFile << "unknown error while reading input.in";
+	outputFile << "unknown error while reading input.txt";
 
 	outputFile.close();
 }
@@ -154,8 +154,8 @@ void readInputFileError()
 
 int main(int argc, char* argv[])
 {
-	ifstream inputFile (BINARY_DIR "/input.in", ios::binary | ios::in);
-	ofstream outputFile (BINARY_DIR "/output.in", ios::binary | ios::out);
+	ifstream inputFile (BINARY_DIR "/input.txt", ios::binary | ios::in);
+	ofstream outputFile (BINARY_DIR "/output.txt", ios::binary | ios::out);
 
 	if (inputFile)
 	{
@@ -163,6 +163,7 @@ int main(int argc, char* argv[])
 		{
 			messageData *newData = new messageData(inputFile);
 			newData->writeInfoToFile(outputFile);
+			delete newData;
 		}
 
 		inputFile.close();

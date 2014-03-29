@@ -11,7 +11,7 @@
 
 using namespace std;
 
-static const unsigned long long maxMessagesCount = 10^16;
+static const unsigned long long maxMessagesCount = 10e16;
 static const uint32_t maxAvaliableMessageType = 4;
 
 struct messageData
@@ -21,14 +21,14 @@ struct messageData
 	uint32_t		messageLength;
 	char*			message;
 
-	messageData(const uint32_t type, const uint32_t time, const uint32_t len, const string  &mess)
+	messageData(const uint32_t type, const uint32_t time, const uint32_t len, const char * const mess)
 	{
 		messageType = type;
 		messageTime = time;
 		messageLength = len;
 
 		message = new char [len + 1];
-		strcpy_s(message, len + 1, mess.c_str());
+		strcpy_s(message, len + 1, mess);
 	}
 
 	~messageData()
@@ -36,7 +36,7 @@ struct messageData
 		delete [] message;
 	}
 
-	void printInfo()
+	void printInfo() const
 	{
 		cout << messageType << " ";
 		cout << messageTime << " ";
@@ -44,17 +44,17 @@ struct messageData
 		cout << message << endl;
 	}
 
-	void writeInfoToFile(ofstream &file)
+	void writeInfoToFile(ofstream &file) const
 	{
-		file.write((char *)&messageType, sizeof(uint32_t));
-		file.write((char *)&messageTime, sizeof(uint32_t));
-		file.write((char *)&messageLength, sizeof(uint32_t));
-		file.write((char *)message, messageLength * sizeof(char));
+		file.write(reinterpret_cast<char*>(messageType), sizeof(uint32_t));
+		file.write(reinterpret_cast<char*>(messageTime), sizeof(uint32_t));
+		file.write(reinterpret_cast<char*>(messageLength), sizeof(uint32_t));
+		file.write(reinterpret_cast<char*>(message), messageLength * sizeof(char));
 	}
 };
 
 
-bool compareFunction (const messageData *a, const messageData *b)
+bool compareFunction (const messageData* const a, const messageData* const b)
 {
 	return a->messageTime < b->messageTime;
 }
@@ -72,7 +72,7 @@ void readInputFileError()
 
 int main(int argc, char* argv[])
 {
-	ifstream inputFile (BINARY_DIR "/input.in", ios::binary);
+	ifstream inputFile (BINARY_DIR "/input.txt", ios::binary);
 
 	if (inputFile)
 	{
@@ -85,18 +85,14 @@ int main(int argc, char* argv[])
 			uint32_t message_type = 0;
 			uint32_t message_time = 0;
 			uint32_t message_length = 0;
-			string   message = "";
 
-			inputFile.read((char *)&message_type, sizeof(uint32_t));
-			inputFile.read((char *)&message_time, sizeof(uint32_t));
-			inputFile.read((char *)&message_length, sizeof(uint32_t));
+			inputFile.read(reinterpret_cast<char*>(message_type), sizeof(uint32_t));
+			inputFile.read(reinterpret_cast<char*>(message_time), sizeof(uint32_t));
+			inputFile.read(reinterpret_cast<char*>(message_length), sizeof(uint32_t));
 
-			char message_content = ' ';
-			for (uint32_t i = 0; i < message_length; i++)
-			{
-				inputFile.read((char *)&message_content, sizeof(char));
-				message.push_back(message_content);
-			}
+			char * message_content = new char[message_length + 1];
+			message_content[message_length] = '\0';
+			inputFile.read(reinterpret_cast<char*>(message_content), message_length);
 
 			if (message_time > maxMessageTime)
 			{
@@ -109,17 +105,19 @@ int main(int argc, char* argv[])
 			{
 				if (message_time + 2 > maxMessageTime)
 				{
-					messageData *newData = new messageData(message_type, message_time, message_length, message);
+					messageData *newData = new messageData(message_type, message_time, message_length, message_content);
 					passingTestMessages.push_back(newData);
 				}
 			}
+
+			delete [] message_content;
 		}
 
 		inputFile.close();
 
 		sort(passingTestMessages.begin(), passingTestMessages.end(), compareFunction);
 
-		ofstream outputFile (BINARY_DIR "/output.in", ios::binary | ios::out);
+		ofstream outputFile ("output.txt", ios::binary | ios::out);
 
 		for (unsigned long long i = 0; i < passingTestMessages.size(); i++)
 		{
@@ -127,6 +125,12 @@ int main(int argc, char* argv[])
 		}
 
 		outputFile.close();
+
+		vector<messageData*>::iterator it;
+		for (it = passingTestMessages.begin(); it != passingTestMessages.end(); ++it)
+		{
+			delete *it;
+		}
 	}
 	else
 	{
@@ -135,4 +139,3 @@ int main(int argc, char* argv[])
 
 	return EXIT_SUCCESS;
 }
-
