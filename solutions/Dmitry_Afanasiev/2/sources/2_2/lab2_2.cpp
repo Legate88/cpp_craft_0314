@@ -1,14 +1,111 @@
-// lab2_2.cpp: определяет точку входа для консольного приложения.
-//
-
 #include <iostream>
 #include <fstream>
-#include "boost\cstdint.hpp"
+#include <boost/cstdint.hpp>
+
 
 using namespace std;
 
+
 static const size_t max_TYPE_Value = 100001;
 static const size_t capacityFilter = 2048;
+
+
+struct Message
+{
+	uint32_t		messageType;
+	uint32_t		messageTime;
+	uint32_t		messageLength;
+	char*			message;
+    
+	Message(const uint32_t type, const uint32_t time, const uint32_t len, const char * const mess) : messageType(0), messageTime(0), messageLength(0), message(NULL)
+	{
+		messageType = type;
+		messageTime = time;
+		messageLength = len;
+        
+		message = new char [len + 1];
+		strcpy(message, mess);
+	}
+    
+    Message(ifstream &file) : messageType(0), messageTime(0), messageLength(0), message(NULL)
+    {
+        file.read((char*)&messageType, sizeof(uint32_t));
+        file.read((char*)&messageTime, sizeof(uint32_t));
+        file.read((char*)&messageLength, sizeof(uint32_t));
+        
+        message = new char [messageLength + 1];
+        file.read(message, messageLength * sizeof(char));
+        message[messageLength] = '\0';
+    }
+    
+	~Message()
+	{
+		delete [] message;
+        message = NULL;
+	}
+    
+	void printInfo() const
+	{
+		cout << messageType << " ";
+		cout << messageTime << " ";
+		cout << messageLength << " ";
+		cout << message << endl;
+	}
+    
+	void writeInfoToFile(ofstream &file) const
+	{
+		file.write((char*)&messageType, sizeof(uint32_t));
+		file.write((char*)&messageTime, sizeof(uint32_t));
+		file.write((char*)&messageLength, sizeof(uint32_t));
+		file.write(message, messageLength * sizeof(char));
+	}
+    
+    uint32_t getSize() const
+    {
+        return 3 * sizeof(uint32_t) + messageLength * sizeof(char);
+    }
+};
+
+
+void generateMessageToFile(ofstream &file)
+{
+    const uint32_t type_ = static_cast<uint32_t>(rand() % 5 + 1);
+    srand(static_cast<uint32_t>(clock()));
+    const uint32_t time_ = static_cast<uint32_t>(rand() % 2 + 1);
+    srand(static_cast<uint32_t>(clock()));
+    const uint32_t len_ = static_cast<uint32_t>(rand() % 10 + 1);
+    srand(static_cast<uint32_t>(clock()));
+    
+    char *mess_ = NULL;
+    mess_ = new char [len_ + 1];
+    mess_[len_] = '\0';
+    
+    for (size_t i = 0; i < len_; i++)
+    {
+        mess_[i] = rand() % ('z' - 'a') + 'a';
+        srand(static_cast<uint32_t>(clock()));
+    }
+    
+    Message *data_ = new Message(type_, time_, len_, mess_);
+    data_->writeInfoToFile(file);
+    
+    delete data_;
+    data_ = NULL;
+    
+    delete [] mess_;
+    mess_ = NULL;
+}
+
+
+void readInputFileError()
+{
+	ofstream outputFile (BINARY_DIR "/output.txt");
+    
+	outputFile << "unknown error while reading input.txt";
+    
+	outputFile.close();
+}
+
 
 struct messageData
 {
@@ -63,88 +160,70 @@ void saveStatistic(staticticData *statistic, messageData *buffer, const size_t s
 
 void saveStatisticToFile(staticticData *statistic, const size_t size)
 {
-	ofstream outputFile (BINARY_DIR "/output.txt", ios::binary);
-
+	ofstream outputFile (BINARY_DIR "/output.txt", ios::binary | ios::out);
+    
 	for (size_t i = 0; i < size; i++)
 	{
 		if (statistic[i].messageCount > 0)
 		{
 			const double averageValue = static_cast<double>(statistic[i].messageCount) / static_cast<double>(statistic[i].secondsCount);
-
-			outputFile.write((char *)i, sizeof(size_t));
+            
+			outputFile.write((char *)&i, sizeof(size_t));
 			outputFile.write((char *)&averageValue, sizeof(double));
 		}
 	}
-
+    
 	outputFile.close();
 }
 
-void readInputFileError()
-{
-	ofstream outputFile (BINARY_DIR "/output.txt");
 
-	outputFile << "unknown error while reading input.txt";
-
-	outputFile.close();
-}
 
 
 int main(int argc, char* argv[])
 {
-	ifstream inputFile (BINARY_DIR "/input.txt", ios::binary);
-
+	ifstream inputFile (BINARY_DIR "/input.txt", ios::binary | ios::in);
+    
 	inputFile.seekg(0, ios::end);
-	size_t const fileSize = inputFile.tellg();
+	const size_t fileSize = inputFile.tellg();
 	inputFile.seekg(0);
 	size_t curPos = inputFile.tellg();
-
-	if (inputFile)
+    
+	if (inputFile.is_open())
 	{
 		uint32_t prevSecondValue = 0;
-
+        
 		messageData *messagesBufer = new messageData[max_TYPE_Value];
 		cleanBuffers(messagesBufer, max_TYPE_Value);
-
+        
 		staticticData *messagesStatistic = new staticticData[max_TYPE_Value];
 		cleanStatistic(messagesStatistic, max_TYPE_Value);
-
+        
 		while (curPos < fileSize)
 		{
-			uint32_t message_type = 0;
-			uint32_t message_time = 0;
-			uint32_t message_length = 0;
-
-			inputFile.read(reinterpret_cast<char*>(&message_type), sizeof(uint32_t));
-			inputFile.read(reinterpret_cast<char*>(&message_time), sizeof(uint32_t));
-			inputFile.read(reinterpret_cast<char*>(&message_length), sizeof(uint32_t));
-
-			char * message_content = new char[message_length + 1];
-			message_content[message_length] = '\0';
-			inputFile.read(static_cast<char*>(message_content), message_length);
-			delete [] message_content;
-
-			const uint32_t messageCapacity = 3 * sizeof(uint32_t) + message_length * sizeof(char);
+            Message *message = new Message(inputFile);
+            
 			curPos = inputFile.tellg();
-
-			if (message_time >= prevSecondValue)
+            
+			if (message->messageTime >= prevSecondValue)
 			{
-				if (message_time != prevSecondValue)
+				if (message->messageTime != prevSecondValue)
 				{
 					saveStatistic(messagesStatistic, messagesBufer, max_TYPE_Value);
 					cleanBuffers(messagesBufer, max_TYPE_Value);
 				}
-
-				addToBuffer(messagesBufer, message_type, messageCapacity);
-
-				prevSecondValue = message_time;
+                
+				addToBuffer(messagesBufer, message->messageType, message->getSize());
+				prevSecondValue = message->messageTime;
 			}
+            
+            delete message;
 		}
-
+        
 		inputFile.close();
-
+        
 		saveStatistic(messagesStatistic, messagesBufer, max_TYPE_Value);
 		saveStatisticToFile(messagesStatistic, max_TYPE_Value);
-
+        
 		delete messagesBufer;
 		delete messagesStatistic;
 	}
@@ -152,6 +231,6 @@ int main(int argc, char* argv[])
 	{
 		readInputFileError();
 	}
-
+    
 	return EXIT_SUCCESS;
 }
