@@ -3,7 +3,6 @@
 #include <string>
 #include <vector>
 #include <algorithm>
-#include <time.h>
 #include <boost/cstdint.hpp>
 
 
@@ -71,36 +70,6 @@ struct messageData
 bool compareFunction (const messageData* const a, const messageData* const b)
 {
 	return a->messageTime < b->messageTime;
-}
-
-
-void generateMessageToFile(ofstream &file)
-{
-    const uint32_t type_ = static_cast<uint32_t>(rand() % 5 + 1);
-    srand(static_cast<uint32_t>(clock()));
-    const uint32_t time_ = static_cast<uint32_t>(rand() % 10 + 1);
-    srand(static_cast<uint32_t>(clock()));
-    const uint32_t len_ = static_cast<uint32_t>(rand() % 10 + 1);
-    srand(static_cast<uint32_t>(clock()));
-    
-    char *mess_ = NULL;
-    mess_ = new char [len_ + 1];
-    mess_[len_] = '\0';
-    
-    for (size_t i = 0; i < len_; i++)
-    {
-        mess_[i] = rand() % ('z' - 'a') + 'a';
-        srand(static_cast<uint32_t>(clock()));
-    }
-    
-    messageData *data_ = new messageData(type_, time_, len_, mess_);
-    data_->writeInfoToFile(file);
-    
-    delete data_;
-    data_ = NULL;
-    
-    delete [] mess_;
-    mess_ = NULL;
 }
 
 

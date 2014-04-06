@@ -65,7 +65,7 @@ struct messageData
         file.write((char *)&f2, sizeof(double));
 	}
     
-	double readToDouble(ifstream &file)
+	double readToDouble(ifstream &file) const
 	{
 		double val = 0.0;
         file.read((char *)&val, sizeof(double));
@@ -73,7 +73,7 @@ struct messageData
 		return val;
 	}
     
-	uint32_t readToUint32(ifstream &file)
+	uint32_t readToUint32(ifstream &file) const
 	{
 		uint32_t val = 0;
         file.read((char *)&val, sizeof(uint32_t));
@@ -81,41 +81,29 @@ struct messageData
 		return val;
 	}
     
-	uint32_t readDateToUint32(ifstream &file, const size_t size)
+	uint32_t readDateToUint32(ifstream &file, const size_t size) const
 	{
-		string buf = "";
-		char bufChar = ' ';
-		uint32_t val = 0;
+		char *message_ = new char [size + 1];
+        file.read(message_, size * sizeof(char));
+        message_[size] = '\0';
         
-		for (size_t i = 0; i < size; i++)
-		{
-			if (!file.eof())
-			{
-				file.read((char *)&bufChar, sizeof(char));
-				buf.push_back(bufChar);
-			}
-		}
+		uint32_t val = atoi(message_);
         
-		val = atoi(buf.c_str());
+        delete [] message_;
         
 		return val;
 	}
     
-	string readMessage(ifstream &file, const size_t size)
+	string readMessage(ifstream &file, const size_t size) const
 	{
-		char bufChar = ' ';
-		string buf = "";
+		char *message_ = new char [size + 1];
+        file.read(message_, size * sizeof(char));
+        message_[size] = '\0';
         
-		for (size_t i = 0; i < size; i++)
-		{
-			if (!file.eof())
-			{
-				file.read((char *)&bufChar, sizeof(char));
-				buf.push_back(bufChar);
-			}
-		}
+        string buf = string(message_);
+        delete [] message_;
         
-		return buf;
+        return buf;
 	}
 };
 
@@ -128,55 +116,6 @@ void readInputFileError()
     
 	outputFile.close();
 }
-
-
-void generateMessageToFile(ofstream &file)
-{
-    string mess_ = "";
-    for (size_t i = 0; i < 8; i++)
-    {
-        mess_.push_back(rand() % ('z' - 'a') + 'a');
-        srand(static_cast<uint32_t>(clock()));
-    }
-    
-    string date_ = "20140505";
-    
-    double price_ = static_cast<double>(rand() % 99 + 1);
-    srand(static_cast<uint32_t>(clock()));
-    
-    double vwap_ = static_cast<double>(rand() % 99 + 1);
-    srand(static_cast<uint32_t>(clock()));
-    
-    uint32_t volume_ = static_cast<uint32_t>(rand() % 99 + 1);
-    srand(static_cast<uint32_t>(clock()));
-    
-    double f1_ = static_cast<double>(rand() % 99 + 1);
-    srand(static_cast<uint32_t>(clock()));
-    
-    double t1_ = static_cast<double>(rand() % 99 + 1);
-    srand(static_cast<uint32_t>(clock()));
-    
-    double f2_ = static_cast<double>(rand() % 99 + 1);
-    srand(static_cast<uint32_t>(clock()));
-    
-    double f3_ = static_cast<double>(rand() % 99+ 1);
-    srand(static_cast<uint32_t>(clock()));
-    
-    double f4_ = static_cast<double>(rand() % 99 + 1);
-    srand(static_cast<uint32_t>(clock()));
-    
-    file.write((char *)mess_.c_str(), mess_.length() * sizeof(char));
-    file.write((char *)date_.c_str(), date_.length() * sizeof(char));
-    file.write((char *)&price_, sizeof(double));
-    file.write((char *)&vwap_, sizeof(double));
-    file.write((char *)&volume_, sizeof(uint32_t));
-    file.write((char *)&f1_, sizeof(double));
-    file.write((char *)&t1_, sizeof(double));
-    file.write((char *)&f2_, sizeof(double));
-    file.write((char *)&f3_, sizeof(double));
-    file.write((char *)&f4_, sizeof(double));
-}
-
 
 
 int main(int argc, char* argv[])

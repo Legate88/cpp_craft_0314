@@ -67,36 +67,6 @@ struct Message
 };
 
 
-void generateMessageToFile(ofstream &file)
-{
-    const uint32_t type_ = static_cast<uint32_t>(rand() % 5 + 1);
-    srand(static_cast<uint32_t>(clock()));
-    const uint32_t time_ = static_cast<uint32_t>(rand() % 2 + 1);
-    srand(static_cast<uint32_t>(clock()));
-    const uint32_t len_ = static_cast<uint32_t>(rand() % 10 + 1);
-    srand(static_cast<uint32_t>(clock()));
-    
-    char *mess_ = NULL;
-    mess_ = new char [len_ + 1];
-    mess_[len_] = '\0';
-    
-    for (size_t i = 0; i < len_; i++)
-    {
-        mess_[i] = rand() % ('z' - 'a') + 'a';
-        srand(static_cast<uint32_t>(clock()));
-    }
-    
-    Message *data_ = new Message(type_, time_, len_, mess_);
-    data_->writeInfoToFile(file);
-    
-    delete data_;
-    data_ = NULL;
-    
-    delete [] mess_;
-    mess_ = NULL;
-}
-
-
 void readInputFileError()
 {
 	ofstream outputFile (BINARY_DIR "/output.txt");
@@ -168,7 +138,7 @@ void saveStatisticToFile(staticticData *statistic, const size_t size)
 		{
 			const double averageValue = static_cast<double>(statistic[i].messageCount) / static_cast<double>(statistic[i].secondsCount);
             
-			outputFile.write((char *)&i, sizeof(size_t));
+			outputFile.write((char *)&i, sizeof(uint32_t));
 			outputFile.write((char *)&averageValue, sizeof(double));
 		}
 	}
@@ -184,9 +154,9 @@ int main(int argc, char* argv[])
 	ifstream inputFile (BINARY_DIR "/input.txt", ios::binary | ios::in);
     
 	inputFile.seekg(0, ios::end);
-	const size_t fileSize = inputFile.tellg();
+	const uint32_t fileSize = inputFile.tellg();
 	inputFile.seekg(0);
-	size_t curPos = inputFile.tellg();
+	uint32_t curPos = inputFile.tellg();
     
 	if (inputFile.is_open())
 	{
@@ -224,8 +194,8 @@ int main(int argc, char* argv[])
 		saveStatistic(messagesStatistic, messagesBufer, max_TYPE_Value);
 		saveStatisticToFile(messagesStatistic, max_TYPE_Value);
         
-		delete messagesBufer;
-		delete messagesStatistic;
+		delete [] messagesBufer;
+		delete [] messagesStatistic;
 	}
 	else
 	{
