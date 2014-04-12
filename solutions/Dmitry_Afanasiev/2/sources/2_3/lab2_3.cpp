@@ -58,7 +58,7 @@ struct messageData
         const double writePrice = vwap;
         const uint32_t writeVolume = volume;
         
-        file.write((char *)message.c_str(), (message.length() + 1) * sizeof(char));
+        file.write((char *)message.c_str(), 9 * sizeof(char));
         file.write((char *)&date, sizeof(uint32_t));
         file.write((char *)&writePrice, sizeof(double));
         file.write((char *)&writeVolume, sizeof(uint32_t));
