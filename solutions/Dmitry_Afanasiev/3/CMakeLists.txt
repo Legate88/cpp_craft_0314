@@ -4,6 +4,6 @@ set( CMAKE_CONFIGURATION_TYPES ${CMAKE_BUILD_TYPE} CACHE STRING "Configurations"
 project( ${SOLUTION_NAME} )
 include( environment.cmake required )
 
-binaries( lab3_1 lab3_2 )
+binaries( lab3_1 lab3_2 lab3_3 )
 
 compile()
